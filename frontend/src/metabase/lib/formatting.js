@@ -5,6 +5,7 @@ import inflection from "inflection";
 import moment from "moment";
 import Humanize from "humanize-plus";
 import React from "react";
+import ReactMarkdown from "react-markdown"
 
 import ExternalLink from "metabase/components/ExternalLink.jsx";
 
@@ -316,11 +317,25 @@ export function formatUrl(value: Value, { jsx, rich }: FormattingOptions = {}) {
   }
 }
 
+export function formatMarkdown(value: Value, { jsx, rich }: FormattingOptions = {}) {
+  const url = String(value);
+  if (jsx && rich) {
+    return (
+      <ReactMarkdown className="link link--wrappable" source={url}/>
+    );
+  } else {
+    return url;
+  }
+}
+
 // fallback for formatting a string without a column special_type
 function formatStringFallback(value: Value, options: FormattingOptions = {}) {
   value = formatUrl(value, options);
   if (typeof value === "string") {
     value = formatEmail(value, options);
+  }
+  if (typeof value === "string") {
+    value = formatMarkdown(value, options);
   }
   return value;
 }
