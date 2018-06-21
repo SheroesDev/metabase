@@ -6,6 +6,7 @@ import moment from "moment";
 import Humanize from "humanize-plus";
 import React from "react";
 import ReactMarkdown from "react-markdown"
+import { ngettext, msgid } from "c-3po";
 
 import ExternalLink from "metabase/components/ExternalLink.jsx";
 
@@ -456,10 +457,10 @@ export function humanize(...args) {
 export function duration(milliseconds: number) {
   if (milliseconds < 60000) {
     let seconds = Math.round(milliseconds / 1000);
-    return seconds + " " + inflect("second", seconds);
+    return ngettext(msgid`${seconds} second`, `${seconds} seconds`, seconds);
   } else {
     let minutes = Math.round(milliseconds / 1000 / 60);
-    return minutes + " " + inflect("minute", minutes);
+    return ngettext(msgid`${minutes} minute`, `${minutes} minutes`, minutes);
   }
 }
 
