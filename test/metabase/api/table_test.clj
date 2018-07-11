@@ -478,12 +478,11 @@
                                :base_type    "type/Text"
                                :special_type "type/Name"
                                :fingerprint  (:name mutil/venue-fingerprints)}
-                              (with-numeric-dimension-options
-                                {:name         "ID"
-                                 :display_name "ID"
-                                 :base_type    "type/Integer"
-                                 :special_type nil
-                                 :fingerprint  (:id mutil/venue-fingerprints)})
+                              {:name         "ID"
+                               :display_name "ID"
+                               :base_type    "type/Integer"
+                               :special_type nil
+                               :fingerprint  (:id mutil/venue-fingerprints)}
                               (with-numeric-dimension-options
                                 {:name         "PRICE"
                                  :display_name "Price"
@@ -646,11 +645,10 @@
           :dimension_options))))
 
 (defn- dimension-options-for-field [response field-name]
-  (let [formatted-field-name (data/format-name field-name)]
-    (->> response
-         :fields
-         (m/find-first #(= formatted-field-name (:name %)))
-         :dimension_options)))
+  (->> response
+       :fields
+       (m/find-first #(.equalsIgnoreCase field-name (:name %)))
+       :dimension_options))
 
 (defn- extract-dimension-options
   "For the given `FIELD-NAME` find it's dimension_options following
@@ -709,7 +707,7 @@
   (-> ((user->client :crowberto) :get 200 (format "table/%s/related" (data/id :venues))) keys set))
 
 ;; Nested queries with a fingerprint should have dimension options for binning
-(datasets/expect-with-engines (qpt/non-timeseries-engines-with-feature :binning)
+(datasets/expect-with-engines (qpt/non-timeseries-engines-with-feature :binning :nested-queries)
   (repeat 2 (var-get #'table-api/coordinate-dimension-indexes))
   (tt/with-temp Card [card {:database_id   (data/id)
                             :dataset_query {:database (data/id)
@@ -722,7 +720,7 @@
            ["latitude" "longitude"]))))
 
 ;; Nested queries missing a fingerprint should not show binning-options
-(datasets/expect-with-engines (qpt/non-timeseries-engines-with-feature :binning)
+(datasets/expect-with-engines (qpt/non-timeseries-engines-with-feature :binning :nested-queries)
   [nil nil]
   (tt/with-temp Card [card {:database_id   (data/id)
                             :dataset_query {:database (data/id)

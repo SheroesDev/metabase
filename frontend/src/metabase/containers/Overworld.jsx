@@ -10,7 +10,7 @@ import { DatabaseListLoader } from "metabase/components/BrowseApp";
 import ExplorePane from "metabase/components/ExplorePane";
 
 import * as Urls from "metabase/lib/urls";
-import { normal } from "metabase/lib/colors";
+import colors, { normal } from "metabase/lib/colors";
 
 import Card from "metabase/components/Card";
 import { Grid, GridItem } from "metabase/components/Grid";
@@ -26,6 +26,8 @@ import MetabotLogo from "metabase/components/MetabotLogo";
 import Greeting from "metabase/lib/greeting";
 
 import { entityListLoader } from "metabase/entities/containers/EntityListLoader";
+
+const PAGE_PADDING = [1, 2, 4];
 
 //class Overworld extends Zelda
 @entityListLoader({
@@ -56,7 +58,7 @@ class Overworld extends React.Component {
   render() {
     return (
       <Box>
-        <Flex px={4} pt={3} pb={1} align="center">
+        <Flex px={PAGE_PADDING} pt={3} pb={1} align="center">
           <MetabotLogo />
           <Box ml={2}>
             <Subhead>{Greeting.sayHello(this.props.user.first_name)}</Subhead>
@@ -74,19 +76,24 @@ class Overworld extends React.Component {
                 <CandidateListLoader>
                   {({ candidates, sampleCandidates, isSample }) => {
                     return (
-                      <Box px={4}>
-                        <ExplorePane
-                          candidates={candidates}
-                          withMetabot={false}
-                          title=""
-                          gridColumns={1 / 3}
-                          asCards={true}
-                          description={
-                            isSample
-                              ? t`Once you connect your own data, I can show you some automatic explorations called x-rays. Here are some examples with sample data.`
-                              : t`I took a look at the data you just connected, and I have some explorations of interesting things I found. Hope you like them!`
-                          }
-                        />
+                      <Box mx={PAGE_PADDING} mt={2}>
+                        <Box mb={1}>
+                          <h4>{t`Not sure where to start?`}</h4>
+                        </Box>
+                        <Card px={3} pb={1}>
+                          <ExplorePane
+                            candidates={candidates}
+                            withMetabot={false}
+                            title=""
+                            gridColumns={1 / 3}
+                            asCards={false}
+                            description={
+                              isSample
+                                ? t`Once you connect your own data, I can show you some automatic explorations called x-rays. Here are some examples with sample data.`
+                                : t`I took a look at the data you have connected, and I have some explorations of interesting things I found. Hope you like them!`
+                            }
+                          />
+                        </Card>
                       </Box>
                     );
                   }}
@@ -95,14 +102,14 @@ class Overworld extends React.Component {
             }
 
             return (
-              <Box px={4}>
+              <Box px={PAGE_PADDING}>
                 <Box mt={3} mb={1}>
-                  <h4>{t`Pinned dashboards`}</h4>
+                  <h4>{t`Start here`}</h4>
                 </Box>
                 <Grid>
                   {pinnedDashboards.map(pin => {
                     return (
-                      <GridItem w={1 / 3}>
+                      <GridItem w={[1, 1 / 2, 1 / 3]}>
                         <Link
                           to={Urls.dashboard(pin.id)}
                           hover={{ color: normal.blue }}
@@ -122,42 +129,49 @@ class Overworld extends React.Component {
                       </GridItem>
                     );
                   })}
-                  <GridItem>
-                    <Link
-                      to="/collection/root"
-                      color={normal.grey2}
-                      className="text-brand-hover"
-                    >
-                      <Flex p={4} align="center">
-                        <h3>See more items</h3>
-                        <Icon name="chevronright" size={14} ml={1} />
-                      </Flex>
-                    </Link>
-                  </GridItem>
                 </Grid>
               </Box>
             );
           }}
         </CollectionItemsLoader>
 
-        <Box px={4} my={3}>
-          <CollectionList collections={this.props.collections} />
+        <Box px={PAGE_PADDING} my={3}>
+          <Box mb={2}>
+            <h4>{t`Our analytics`}</h4>
+          </Box>
+          <Card p={[2, 3]}>
+            <CollectionList collections={this.props.collections} />
+            <Link
+              to="/collection/root"
+              color={normal.grey2}
+              className="text-brand-hover"
+            >
+              <Flex bg={colors["bg-light"]} p={2} mb={1} align="center">
+                <Box ml="auto" mr="auto">
+                  <Flex align="center">
+                    <h3>{t`Browse all items`}</h3>
+                    <Icon name="chevronright" size={14} ml={1} />
+                  </Flex>
+                </Box>
+              </Flex>
+            </Link>
+          </Card>
         </Box>
 
-        <Box pt={2} px={4}>
+        <Box pt={2} px={PAGE_PADDING}>
           <h4>{t`Our data`}</h4>
-          <Box mt={2}>
+          <Box mt={2} mb={4}>
             <DatabaseListLoader>
               {({ databases }) => {
                 return (
-                  <Grid w={1 / 3}>
+                  <Grid>
                     {databases.map(database => (
-                      <GridItem>
+                      <GridItem w={[1, 1 / 3]}>
                         <Link
                           to={`browse/${database.id}`}
                           hover={{ color: normal.blue }}
                         >
-                          <Box p={3} bg="#F2F5F7">
+                          <Box p={3} bg={colors["bg-medium"]}>
                             <Icon
                               name="database"
                               color={normal.green}

@@ -3,7 +3,7 @@ import { t } from "c-3po";
 import { Box, Flex } from "grid-styled";
 import { connect } from "react-redux";
 
-import { normal } from "metabase/lib/colors";
+import colors, { normal } from "metabase/lib/colors";
 import * as Urls from "metabase/lib/urls";
 
 import Ellipsified from "metabase/components/Ellipsified";
@@ -17,12 +17,12 @@ import ItemDragSource from "metabase/containers/dnd/ItemDragSource";
 const CollectionItem = ({ collection, color, iconName = "all" }) => (
   <Link
     to={`collection/${collection.id}`}
-    hover={{ color: normal.blue }}
     color={color || normal.grey2}
+    className="text-brand-hover"
   >
-    <Box bg="#F4F6F8" p={2} mb={1}>
+    <Box bg={colors["bg-light"]} p={2}>
       <Flex align="center" py={1} key={`collection-${collection.id}`}>
-        <Icon name={iconName} mx={1} color="#93B3C9" />
+        <Icon name={iconName} mx={1} />
         <h4 className="overflow-hidden">
           <Ellipsified>{collection.name}</Ellipsified>
         </h4>
@@ -34,12 +34,29 @@ const CollectionItem = ({ collection, color, iconName = "all" }) => (
 @connect(({ currentUser }) => ({ currentUser }), null)
 class CollectionList extends React.Component {
   render() {
-    const { collections, currentUser, currentCollection, isRoot } = this.props;
+    const {
+      collections,
+      currentUser,
+      currentCollection,
+      isRoot,
+      w,
+    } = this.props;
     return (
       <Box>
         <Grid>
+          {collections
+            .filter(c => c.id !== currentUser.personal_collection_id)
+            .map(collection => (
+              <GridItem w={w}>
+                <CollectionDropTarget collection={collection}>
+                  <ItemDragSource item={collection}>
+                    <CollectionItem collection={collection} />
+                  </ItemDragSource>
+                </CollectionDropTarget>
+              </GridItem>
+            ))}
           {isRoot && (
-            <GridItem w={1 / 4}>
+            <GridItem w={w}>
               <CollectionDropTarget
                 collection={{ id: currentUser.personal_collection_id }}
               >
@@ -55,7 +72,7 @@ class CollectionList extends React.Component {
           )}
           {isRoot &&
             currentUser.is_superuser && (
-              <GridItem w={1 / 4}>
+              <GridItem w={w}>
                 <CollectionItem
                   collection={{
                     name: t`Everyone else's personal collections`,
@@ -68,53 +85,31 @@ class CollectionList extends React.Component {
                 />
               </GridItem>
             )}
-          {!currentCollection && (
-            <GridItem w={1 / 4}>
-              <Link
-                to={Urls.collection()}
-                color={normal.grey2}
-                hover={{ color: normal.blue }}
-              >
-                <Box p={2} className="bordered rounded">
-                  <Flex align="center" py={1}>
-                    <Icon name="dashboard" mr={1} bordered />
-                    <h4>{t`Dashboards and questions`}</h4>
-                  </Flex>
-                </Box>
-              </Link>
-            </GridItem>
-          )}
-          {collections
-            .filter(c => c.id !== currentUser.personal_collection_id)
-            .map(collection => (
-              <GridItem w={1 / 4}>
-                <CollectionDropTarget collection={collection}>
-                  <ItemDragSource item={collection}>
-                    <CollectionItem collection={collection} />
-                  </ItemDragSource>
-                </CollectionDropTarget>
+          {currentCollection &&
+            currentCollection.can_write && (
+              <GridItem w={w}>
+                <Link
+                  to={Urls.newCollection(currentCollection.id)}
+                  color={normal.grey2}
+                  hover={{ color: normal.blue }}
+                >
+                  <Box p={[1, 2]}>
+                    <Flex align="center" py={1}>
+                      <Icon name="add" mr={1} bordered />
+                      <h4>{t`New collection`}</h4>
+                    </Flex>
+                  </Box>
+                </Link>
               </GridItem>
-            ))}
-          {currentCollection && (
-            <GridItem w={1 / 4}>
-              <Link
-                to={Urls.newCollection(currentCollection.id)}
-                color={normal.grey2}
-                hover={{ color: normal.blue }}
-              >
-                <Box p={2} className="bordered rounded">
-                  <Flex align="center" py={1}>
-                    <Icon name="add" mr={1} bordered />
-                    <h4>{t`New collection`}</h4>
-                  </Flex>
-                </Box>
-              </Link>
-            </GridItem>
-          )}
+            )}
         </Grid>
       </Box>
     );
   }
 }
+
+CollectionList.defaultProps = {
+  w: [1, 1 / 2, 1 / 4],
+};
 
 export default CollectionList;

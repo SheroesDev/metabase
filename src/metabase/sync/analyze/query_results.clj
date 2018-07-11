@@ -40,8 +40,15 @@
   special type with a nil special type"
   [result-metadata col]
   (update result-metadata :special_type (fn [original-value]
-                                          (or (classify-name/infer-special-type col)
-                                              original-value))))
+                                          ;; If the original special type is a PK or FK, we don't want to use a new
+                                          ;; computed special type because it'll just be confusing as we can't do any
+                                          ;; meaningful binning etc on it. If it's not of that type and we are able to
+                                          ;; compute a special type based on the results, use that
+                                          (if-let [new-special-type (and (not (isa? original-value :type/PK))
+                                                                         (not (isa? original-value :type/FK))
+                                                                         (classify-name/infer-special-type col))]
+                                            new-special-type
+                                            original-value))))
 
 (s/defn ^:private maybe-compute-fingerprint :- ResultColumnMetadata
   "If we already have a fingerprint from our stored metadata, use that. Queries that we don't have fingerprint data

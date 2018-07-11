@@ -45,12 +45,12 @@
    :query    {:source-table (str "card__" (u/get-id card))}})
 
 (def ^:private venue-name->special-types
-  {:id :type/PK,
-   :name :type/Name,
-   :price :type/Category,
+  {:id          :type/PK,
+   :name        :type/Name,
+   :price       :type/Category,
    :category_id :type/FK,
-   :latitude :type/Latitude,
-   :longitude :type/Longitude})
+   :latitude    :type/Latitude,
+   :longitude   :type/Longitude})
 
 ;; Getting the result metadata for a card backed by an MBQL query should use the fingerprints from the related fields
 (expect
@@ -62,7 +62,7 @@
       (name->fingerprints
        (query->result-metadata (query-for-card card))))))
 
-;; Getting the result metadata for a card backed by an MBQL query should just use the special types from the related fields
+;; Getting the result metadata for a card backed by an MBQL query should just infer the types of all the fields
 (expect
   venue-name->special-types
   (tt/with-temp Card [card {:dataset_query   {:database (data/id)

@@ -5,6 +5,8 @@ import { t } from "c-3po";
 import { Box, Flex } from "grid-styled";
 import styled from "styled-components";
 import { space, width } from "styled-system";
+import colors from "metabase/lib/colors";
+import color from "color";
 
 import { connect } from "react-redux";
 import { push } from "react-router-redux";
@@ -51,8 +53,12 @@ const AdminNavItem = ({ name, path, currentPath }) => (
   </li>
 );
 
-const DefaultSearchColor = "#60A6E4";
-const ActiveSearchColor = "#7bb7ec";
+const DefaultSearchColor = color(colors.brand)
+  .lighten(0.07)
+  .string();
+const ActiveSearchColor = color(colors.brand)
+  .lighten(0.1)
+  .string();
 
 const SearchWrapper = Flex.extend`
   ${width} background-color: ${props =>
@@ -60,7 +66,6 @@ const SearchWrapper = Flex.extend`
   border-radius: 6px;
   align-items: center;
   color: white;
-  border: 1px solid ${props => (props.active ? "#4894d8" : "transparent")};
   transition: background 300ms ease-in;
   &:hover {
     background-color: ${ActiveSearchColor};
@@ -77,7 +82,7 @@ const SearchInput = styled.input`
     outline: none;
   }
   &::placeholder {
-    color: rgba(255, 255, 255, 0.85);
+    color: ${colors["text-white"]};
   }
 `;
 
@@ -116,7 +121,9 @@ class SearchBar extends React.Component {
           <Icon name="search" ml={2} />
           <SearchInput
             w={1}
-            p={2}
+            py={2}
+            pr={2}
+            pl={1}
             value={this.state.searchText}
             placeholder="Search for anything..."
             onClick={() => this.setState({ active: true })}

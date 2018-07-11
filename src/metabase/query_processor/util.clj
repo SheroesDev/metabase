@@ -151,3 +151,19 @@
                      (f node)
                      node))
                  form))
+
+(defn postwalk-collect
+  "Invoke `collect-fn` on each node satisfying `pred`. If `collect-fn` returns a value, accumulate that and return the
+  results.
+
+  Note: This would be much better as a zipper. It could have the same API, would be faster and would avoid side
+  affects."
+  [pred collect-fn form]
+  (let [results (atom [])]
+    (postwalk-pred pred
+                   (fn [node]
+                     (when-let [result (collect-fn node)]
+                       (swap! results conj result))
+                     node)
+                   form)
+    @results))
