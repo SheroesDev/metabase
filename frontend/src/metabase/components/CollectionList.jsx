@@ -3,10 +3,10 @@ import { t } from "c-3po";
 import { Box, Flex } from "grid-styled";
 import { connect } from "react-redux";
 
-import colors, { normal } from "metabase/lib/colors";
 import * as Urls from "metabase/lib/urls";
 
-import Ellipsified from "metabase/components/Ellipsified";
+import CollectionItem from "metabase/components/CollectionItem";
+import { normal } from "metabase/lib/colors";
 import { Grid, GridItem } from "metabase/components/Grid";
 import Icon from "metabase/components/Icon";
 import Link from "metabase/components/Link";
@@ -14,27 +14,11 @@ import Link from "metabase/components/Link";
 import CollectionDropTarget from "metabase/containers/dnd/CollectionDropTarget";
 import ItemDragSource from "metabase/containers/dnd/ItemDragSource";
 
-const CollectionItem = ({ collection, color, iconName = "all" }) => (
-  <Link
-    to={`collection/${collection.id}`}
-    color={color || normal.grey2}
-    className="text-brand-hover"
-  >
-    <Box bg={colors["bg-light"]} p={2}>
-      <Flex align="center" py={1} key={`collection-${collection.id}`}>
-        <Icon name={iconName} mx={1} />
-        <h4 className="overflow-hidden">
-          <Ellipsified>{collection.name}</Ellipsified>
-        </h4>
-      </Flex>
-    </Box>
-  </Link>
-);
-
 @connect(({ currentUser }) => ({ currentUser }), null)
 class CollectionList extends React.Component {
   render() {
     const {
+      analyticsContext,
       collections,
       currentUser,
       currentCollection,
@@ -42,31 +26,43 @@ class CollectionList extends React.Component {
       w,
     } = this.props;
     return (
-      <Box>
+      <Box className="relative">
         <Grid>
           {collections
             .filter(c => c.id !== currentUser.personal_collection_id)
             .map(collection => (
-              <GridItem w={w}>
+              <GridItem w={w} key={collection.id}>
                 <CollectionDropTarget collection={collection}>
-                  <ItemDragSource item={collection}>
-                    <CollectionItem collection={collection} />
-                  </ItemDragSource>
+                  {({ highlighted, hovered }) => (
+                    <ItemDragSource item={collection}>
+                      <CollectionItem
+                        collection={collection}
+                        highlighted={highlighted}
+                        hovered={hovered}
+                        event={`${analyticsContext};Collection List;Collection click`}
+                      />
+                    </ItemDragSource>
+                  )}
                 </CollectionDropTarget>
               </GridItem>
             ))}
           {isRoot && (
-            <GridItem w={w}>
+            <GridItem w={w} className="relative">
               <CollectionDropTarget
                 collection={{ id: currentUser.personal_collection_id }}
               >
-                <CollectionItem
-                  collection={{
-                    name: t`My personal collection`,
-                    id: currentUser.personal_collection_id,
-                  }}
-                  iconName="star"
-                />
+                {({ highlighted, hovered }) => (
+                  <CollectionItem
+                    collection={{
+                      name: t`My personal collection`,
+                      id: currentUser.personal_collection_id,
+                    }}
+                    iconName="star"
+                    highlighted={highlighted}
+                    hovered={hovered}
+                    event={`${analyticsContext};Collection List;Personal collection click`}
+                  />
+                )}
               </CollectionDropTarget>
             </GridItem>
           )}
@@ -82,6 +78,7 @@ class CollectionList extends React.Component {
                     id: "users",
                   }}
                   iconName="person"
+                  event={`${analyticsContext};Collection List;All user collecetions click`}
                 />
               </GridItem>
             )}
@@ -92,13 +89,13 @@ class CollectionList extends React.Component {
                   to={Urls.newCollection(currentCollection.id)}
                   color={normal.grey2}
                   hover={{ color: normal.blue }}
+                  p={w === 1 ? [1, 2] : 0}
+                  data-metabase-event={`${analyticsContext};Collection List; New Collection Click`}
                 >
-                  <Box p={[1, 2]}>
-                    <Flex align="center" py={1}>
-                      <Icon name="add" mr={1} bordered />
-                      <h4>{t`New collection`}</h4>
-                    </Flex>
-                  </Box>
+                  <Flex align="center" py={1}>
+                    <Icon name="add" mr={1} bordered />
+                    <h4>{t`New collection`}</h4>
+                  </Flex>
                 </Link>
               </GridItem>
             )}

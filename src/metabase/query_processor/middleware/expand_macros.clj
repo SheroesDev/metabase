@@ -43,7 +43,9 @@
       form
       (:filter (db/select-one-field :definition Segment :id (u/get-id (second form)))))))
 
-(defn- segment-parse-filter [form]
+(defn segment-parse-filter
+  "Expand segment macro into its definition."
+  [form]
   (when (non-empty-clause? form)
     (if (is-clause? #{:and :or :not} form)
       ;; for forms that start with AND/OR/NOT recursively parse the subclauses and put them nicely back into their
@@ -68,7 +70,7 @@
 ;;; |                                                    METRICS                                                     |
 ;;; +----------------------------------------------------------------------------------------------------------------+
 
-(defn- ga-metric?
+(defn ga-metric?
   "Is this metric clause not a Metabase Metric, but rather a GA one? E.g. something like [metric ga:users]. We want to
    ignore those because they're not the same thing at all as MB Metrics and don't correspond to objects in our
    application DB."
@@ -112,13 +114,14 @@
   "Merge filter clauses."
   ([] [])
   ([clause] clause)
-  ([base-clause additional-clauses]
-   (cond
-     (and (seq base-clause)
-          (seq additional-clauses)) [:and base-clause additional-clauses]
-     (seq base-clause)              base-clause
-     (seq additional-clauses)       additional-clauses
-     :else                          [])))
+  ([base-clause & additional-clauses]
+   (let [additional-clauses (filter seq additional-clauses)]
+     (cond
+       (and (seq base-clause)
+            (seq additional-clauses)) (apply vector :and base-clause additional-clauses)
+       (seq base-clause)              base-clause
+       (seq additional-clauses)       (apply merge-filter-clauses additional-clauses)
+       :else                          []))))
 
 (defn- add-metrics-filter-clauses
   "Add any FILTER-CLAUSES to the QUERY-DICT. If query has existing filter clauses, the new ones are
