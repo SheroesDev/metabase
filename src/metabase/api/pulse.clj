@@ -34,7 +34,7 @@
   {archived (s/maybe su/BooleanString)}
   (as-> (pulse/retrieve-pulses {:archived? (Boolean/parseBoolean archived)}) <>
     (filter mi/can-read? <>)
-    (hydrate <> :read_only)))
+    (hydrate <> :can_write)))
 
 (defn check-card-read-permissions
   "Users can only create a pulse for `cards` they have access to."
@@ -74,7 +74,8 @@
 (api/defendpoint GET "/:id"
   "Fetch `Pulse` with ID."
   [id]
-  (api/read-check (pulse/retrieve-pulse id)))
+  (-> (api/read-check (pulse/retrieve-pulse id))
+      (hydrate :can_write)))
 
 (api/defendpoint PUT "/:id"
   "Update a Pulse with `id`."
@@ -179,11 +180,13 @@
 
 (api/defendpoint POST "/test"
   "Test send an unsaved pulse."
-  [:as {{:keys [name cards channels skip_if_empty] :as body} :body}]
-  {name          su/NonBlankString
-   cards         (su/non-empty [pulse/CardRef])
-   channels      (su/non-empty [su/Map])
-   skip_if_empty s/Bool}
+  [:as {{:keys [name cards channels skip_if_empty collection_id collection_position] :as body} :body}]
+  {name                su/NonBlankString
+   cards               (su/non-empty [pulse/CoercibleToCardRef])
+   channels            (su/non-empty [su/Map])
+   skip_if_empty       (s/maybe s/Bool)
+   collection_id       (s/maybe su/IntGreaterThanZero)
+   collection_position (s/maybe su/IntGreaterThanZero)}
   (check-card-read-permissions cards)
   (p/send-pulse! body)
   {:ok true})
