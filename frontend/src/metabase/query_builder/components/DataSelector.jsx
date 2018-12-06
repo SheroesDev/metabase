@@ -548,6 +548,7 @@ export default class DataSelector extends Component {
         triggerElement={this.getTriggerElement()}
         triggerClasses={triggerClasses}
         horizontalAttachments={["center", "left", "right"]}
+        sizeToFit
       >
         {this.renderActiveStep()}
       </PopoverWithTrigger>
@@ -713,7 +714,7 @@ export const DatabaseSchemaPicker = ({
   }
 
   return (
-    <div>
+    <div className="scroll-y">
       <AccordianList
         id="DatabaseSchemaPicker"
         key="databaseSchemaPicker"
@@ -797,7 +798,7 @@ export const TablePicker = ({
       },
     ];
     return (
-      <div style={{ width: 300 }}>
+      <div style={{ width: 300 }} className="scroll-y">
         <AccordianList
           id="TablePicker"
           key="tablePicker"
