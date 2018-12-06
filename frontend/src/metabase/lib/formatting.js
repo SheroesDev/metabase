@@ -5,7 +5,6 @@ import inflection from "inflection";
 import moment from "moment";
 import Humanize from "humanize-plus";
 import React from "react";
-import ReactMarkdown from "react-markdown"
 import { ngettext, msgid } from "c-3po";
 
 import Mustache from "mustache";
