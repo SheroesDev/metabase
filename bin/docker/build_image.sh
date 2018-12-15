@@ -5,7 +5,7 @@ set -e
 BASEDIR=$(dirname $0)
 PROJECT_ROOT="$BASEDIR/../.."
 
-DOCKERHUB_NAMESPACE=metabase
+DOCKERHUB_NAMESPACE=satyadeepk
 
 
 BUILD_TYPE=$1
@@ -56,7 +56,7 @@ else
     echo "Building Docker image ${DOCKER_IMAGE} from local source"
 
     # trigger a full build
-    ${PROJECT_ROOT}/bin/build
+    ${PROJECT_ROOT}/bin/build no-translations
 
     if [ $? -eq 1 ]; then
         echo "Build failed!"
@@ -88,7 +88,7 @@ if [ "$PUBLISH" == "YES" ]; then
 
     if [ "$LATEST" == "YES" ]; then
         # tag our recent versioned image as "latest"
-        docker tag -f ${DOCKER_IMAGE} ${DOCKERHUB_NAMESPACE}/${DOCKERHUB_REPOSITORY}:latest
+        docker tag ${DOCKER_IMAGE} ${DOCKERHUB_NAMESPACE}/${DOCKERHUB_REPOSITORY}:latest
 
         # then push it as well
         docker push ${DOCKERHUB_NAMESPACE}/${DOCKERHUB_REPOSITORY}:latest
