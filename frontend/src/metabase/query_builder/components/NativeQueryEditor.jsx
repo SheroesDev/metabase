@@ -9,6 +9,8 @@ import "./NativeQueryEditor.css";
 // $FlowFixMe react-resizable causes Flow errors
 import { ResizableBox } from "react-resizable";
 
+import sqlFormatter from "sql-formatter";
+
 import "ace/ace";
 import "ace/ext-language_tools";
 
@@ -263,6 +265,13 @@ export default class NativeQueryEditor extends Component {
     this.setState({ showEditor: !this.state.showEditor });
   };
 
+  formatQuery = () => {
+    this._localUpdate = true;
+    this._editor.setValue(sqlFormatter.format(this._editor.getValue()));
+    this._editor.clearSelection();
+    this._localUpdate = false;
+  };
+
   /// Change the Database we're currently editing a query for.
   setDatabaseId = (databaseId: DatabaseId) => {
     // TODO: use metabase-lib
@@ -346,7 +355,8 @@ export default class NativeQueryEditor extends Component {
       );
     }
 
-    let editorClasses, toggleEditorText, toggleEditorIcon;
+    let editorClasses, formatQueryText, toggleEditorText, toggleEditorIcon;
+    formatQueryText = t`Format Query`;
     if (this.state.showEditor) {
       editorClasses = "";
       toggleEditorText = query.hasWritePermission()
@@ -376,13 +386,23 @@ export default class NativeQueryEditor extends Component {
               isQB
               commitImmediately
             />
-            <a
-              className="Query-label no-decoration flex-align-right flex align-center px2"
-              onClick={this.toggleEditor}
-            >
-              <span className="mx2">{toggleEditorText}</span>
-              <Icon name={toggleEditorIcon} size={20} />
-            </a>
+            
+            <span className="Query-label no-decoration flex-align-right flex align-center">
+              <a
+                className="Query-label no-decoration flex-align-right flex align-center px2"
+                onClick={this.formatQuery}
+              >
+                <span className="mx2">{formatQueryText}</span>
+              </a>
+
+              <a
+                className="Query-label no-decoration flex-align-right flex align-center px2"
+                onClick={this.toggleEditor}
+              >              <
+                span className="mx2">{toggleEditorText}</span>
+                <Icon name={toggleEditorIcon} size={20} />
+              </a>
+            </span>
           </div>
           <ResizableBox
             ref="resizeBox"
