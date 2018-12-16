@@ -88,7 +88,7 @@ if [ "$PUBLISH" == "YES" ]; then
 
     if [ "$LATEST" == "YES" ]; then
         # tag our recent versioned image as "latest"
-        docker tag -f ${DOCKER_IMAGE} ${DOCKERHUB_NAMESPACE}/${DOCKERHUB_REPOSITORY}:latest
+        docker tag ${DOCKER_IMAGE} ${DOCKERHUB_NAMESPACE}/${DOCKERHUB_REPOSITORY}:latest
 
         # then push it as well
         docker push ${DOCKERHUB_NAMESPACE}/${DOCKERHUB_REPOSITORY}:latest
